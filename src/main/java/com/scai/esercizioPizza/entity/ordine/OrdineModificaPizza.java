@@ -26,7 +26,7 @@ public class OrdineModificaPizza implements Serializable
 	
 	private static final long serialVersionUID = 539411400375987017L;
 
-	private Long id;
+	private Long idOrdineModifica;
 	private OrdinePizzeEntity ordinePizzaEntity;
 	private IngredienteEntity ingredienteEntity;
 	private TipoModificaPizzaEntity tipoModificaPizzaEntity;
@@ -36,12 +36,12 @@ public class OrdineModificaPizza implements Serializable
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	public Long getId() 
 	{
-		return id;
+		return idOrdineModifica;
 	}
 	
 	public void setId(Long id)
 	{
-		this.id = id;
+		this.idOrdineModifica = id;
 	}
 	
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
@@ -55,7 +55,7 @@ public class OrdineModificaPizza implements Serializable
 		this.ordinePizzaEntity = orderPizzas;
 	}
 	
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name="id_tipo_modifica")
 	public TipoModificaPizzaEntity getTipoModificaPizzaEntry() 
 	{

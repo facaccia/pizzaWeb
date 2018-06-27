@@ -3,6 +3,7 @@ package com.scai.esercizioPizza.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -28,10 +29,12 @@ public class OrdineDao {
 	@Autowired
 	private ConvertitoreService convertitoreService;
 
+	@Transactional
     private Session getSession() {
         return entityManager.unwrap(Session.class);
     }
 
+    @Transactional
 	public Order getOrdine(int id) {
 		Session session = getSession();
 		Query<OrdineEntity> query= session.createQuery("from OrdineEntity where id= "+ id, OrdineEntity.class);
@@ -40,14 +43,13 @@ public class OrdineDao {
 		return ordine;
 	}
 
+	@Transactional
 	public Order createOrdine(Order orderAngular) {
 		
 		
 		OrdineEntity ordineEntity= convertitoreService.convertOrdineToOrdineEntity(orderAngular);
 		System.out.println(ordineEntity.getOrdinePizzeEntity());
 		CustomerEntity customerEntity= ordineEntity.getCustomerEntity();
-		List<OrdinePizzeEntity> ordinePizzeEntity= ordineEntity.getOrdinePizzeEntity();
-		List<OrdineBevandeEntity> ordineBevandeEntity= ordineEntity.getOrdineBevandeEntity();
 		
 		State statoOrdineEntity = orderAngular.getState();
 		Session session = getSession();
@@ -56,11 +58,23 @@ public class OrdineDao {
 		
 		ordineEntity.setIndirizzoConsegna(customerEntity.getIndirizzo());
 		ordineEntity.setOrderState(stato);
-//		ordineEntity.getOrdinePizzeEntity()
 		
 		
 		customerEntity.add(ordineEntity);
-		session.save(ordineEntity);
+		Order ordine = this.salvataggioOrdine(ordineEntity);
+		
+		return ordine;
+	}
+	
+
+	
+	
+	public Order salvataggioOrdine(OrdineEntity ordineEntity){
+		
+		Session session = getSession();
+		
+		List<OrdinePizzeEntity> ordinePizzeEntity= ordineEntity.getOrdinePizzeEntity();
+		List<OrdineBevandeEntity> ordineBevandeEntity= ordineEntity.getOrdineBevandeEntity();
 		
 		
 		for (OrdinePizzeEntity ordinePizzeEntity2 : ordinePizzeEntity) {
@@ -71,14 +85,19 @@ public class OrdineDao {
 			//ordineEntity.add(ordinePizzeEntity2);
 			ordinePizzeEntity2.setOrdineEntity(ordineEntity);
 			session.save(ordinePizzeEntity2);
+			this.prova(ordinePizzeEntity2,ordineModifica);
 			
-			for (OrdineModificaPizza ordineModificaPizza : ordineModifica) {
-				//ordineModificaPizza.add(ordinePizzeEntity2);
-				session.save(ordineModificaPizza);
-				
-			}
-			
-			
+//			for (OrdineModificaPizza ordineModificaPizza : ordineModifica) {
+//				ordineModificaPizza.add(ordinePizzeEntity2);
+//				System.out.println("poco prima del save");
+//				session.beginTransaction();
+//				session.save(ordineModificaPizza);
+//				session.close();
+//				System.out.println("poco dopo del save");
+//				
+//			}
+//			 
+//			
 		}
 		
 		for (OrdineBevandeEntity ordineBevandeEntity2 : ordineBevandeEntity) {
@@ -91,9 +110,34 @@ public class OrdineDao {
 		Order ordine = convertitoreService.convertOrdineEntityToOrdine(ordineEntity);
 		ordine.setState(statoOrdine);
 		
-		
-		
 		return ordine;
+	}
+
+	
+	private void prova(OrdinePizzeEntity ordinePizzeEntity2, List<OrdineModificaPizza> ordineModifica) {
+		
+		Session session = getSession();
+		
+		for (OrdineModificaPizza ordineModificaPizza : ordineModifica) {
+			ordineModificaPizza.add(ordinePizzeEntity2);
+			
+			System.out.println("poco prima del save");
+//			session.beginTransaction();
+//			String sql = String.format("insert into r_modifica_pizza_ordine values ("+ ordineModificaPizza.getId()+", "+ordineModificaPizza.getOrderPizzas().getId()
+//					+", "+ordineModificaPizza.getIngrediente().getId()+", 1)");
+//			session.createSQLQuery(sql).executeUpdate();
+//			session.getTransaction().commit();
+//			session.close();
+//			Query query = session.createQuery("insert into r_modifica_pizza_ordine values ("+ ordineModificaPizza.getId()+", "+ordineModificaPizza.getOrderPizzas().getId()
+//					+", "+ordineModificaPizza.getIngrediente().getId()+", 1)");
+			
+			
+			session.merge(ordineModificaPizza);
+
+			System.out.println("poco dopo del save");
+			
+		}
+		
 	}
 	
 	

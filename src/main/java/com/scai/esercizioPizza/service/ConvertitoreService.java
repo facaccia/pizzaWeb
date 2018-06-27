@@ -78,41 +78,63 @@ public class ConvertitoreService {
 	
 	public OrdineEntity convertOrdineToOrdineEntity(Order ordine) {
 		
-		System.out.println(ordine);
-		List<OrdineModificaPizza> ordineModifiList= new ArrayList<OrdineModificaPizza>();
-		List<Pizza> ordinePizze = ordine.getOrdinePizzeEntity();
-		OrdineModificaPizza modificaConver = null;
-		for (Pizza pizza : ordinePizze) {
-			System.out.println("pizza"+ pizza);
-			if(pizza.getOrdineModificaPizzaList().size()!=0) {
-			List<Ingredient> ordineModifica = pizza.getOrdineModificaPizzaList();
-			System.out.println(ordineModifica);
-			for (Ingredient ingredient : ordineModifica) {
-				 modificaConver = this.convertListIngredientiToListModificaEntity(ingredient);
-				 PizzaEntity pizzaEntity = this.convertPizzaToPizzaEntity(pizza);
-				OrdinePizzeEntity ordinePizzaProva= new OrdinePizzeEntity();
-				ordinePizzaProva.setPizzaEntity(pizzaEntity);
-				 modificaConver.setOrderPizzas(ordinePizzaProva);
-				
-				 System.out.println("modifica Ordineeeee"+modificaConver.getOrderPizzas().getPizzaEntity().getId());
-				 System.out.println(modificaConver);
-				 System.out.println(modificaConver.getIngrediente().getIdPizzaAssociata());
-				 //modificaConver.setOrderPizzas(pizza);
-				 if (modificaConver.getIngrediente().getIdPizzaAssociata()== pizza.getId()) {
-					 ordineModifiList.add(modificaConver);
-				 }
-			}
-			}
-		}
+//		List<OrdineModificaPizza> ordineModifiList= new ArrayList<OrdineModificaPizza>();
+//		List<Pizza> ordinePizze = ordine.getOrdinePizzeEntity();
+//		OrdineModificaPizza modificaConver = null;
+//		for (Pizza pizza : ordinePizze) {
+//			if(pizza.getOrdineModificaPizzaList().size()!=0) {
+//			List<Ingredient> ordineModifica = pizza.getOrdineModificaPizzaList();
+//			for (Ingredient ingredient : ordineModifica) {
+//				 modificaConver = this.convertListIngredientiToListModificaEntity(ingredient);
+//				 PizzaEntity pizzaEntity = this.convertPizzaToPizzaEntity(pizza);
+//				OrdinePizzeEntity ordinePizzaProva= new OrdinePizzeEntity();
+//				ordinePizzaProva.setPizzaEntity(pizzaEntity);
+//				 modificaConver.setOrderPizzas(ordinePizzaProva);
+//				
+//				 System.out.println("modifica Ordine "+modificaConver.getOrderPizzas().getPizzaEntity().getId());
+//				 System.out.println("modifica Ordine pizza associata "+modificaConver.getIngrediente().getIdPizzaAssociata());
+//				 //modificaConver.setOrderPizzas(pizza);
+//				 if (modificaConver.getIngrediente().getIdPizzaAssociata()== pizza.getId()) {
+//					 System.out.println("entrato nell if");
+//					 ordineModifiList.add(modificaConver);
+//				 }
+//			}
+//			}
+//		}
+		
+		
 		getModelMapper().getConfiguration().setPropertyCondition(Conditions.isNotNull());
 		getModelMapper().getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
 		getModelMapper().getConfiguration().setAmbiguityIgnored(true);
 		
+		
 		OrdineEntity ordineEntity= getModelMapper().map(ordine, OrdineEntity.class);
-		List<OrdinePizzeEntity> ordinePizze1 = ordineEntity.getOrdinePizzeEntity();
-		for (OrdinePizzeEntity ordinePizzeEntity : ordinePizze1) {
-			ordinePizzeEntity.setOrdineModificaPizzaList(ordineModifiList);
+		
+		for (Pizza ordinePizzeEntity : ordine.getOrdinePizzeEntity()) {
+			if(ordinePizzeEntity.getOrdineModificaPizzaList().size()!=0) {
+				for (Ingredient ingredienteModifica : ordinePizzeEntity.getOrdineModificaPizzaList()) {
+					
+					OrdineModificaPizza ordineModifica = this.convertIngredientiToModificaEntity(ingredienteModifica);
+					System.out.println("ciao "+ordineModifica);
+					for (OrdinePizzeEntity ordinePizzeEntity1 : ordineEntity.getOrdinePizzeEntity()) {
+						if (ordinePizzeEntity1.getOrdineModificaPizzaList().size()!=0 && ordinePizzeEntity1.getPizzaEntity().getId()==ingredienteModifica.getIdPizzaAssociata()) {
+							List<OrdineModificaPizza> ordineModificaPizzaList = new ArrayList<OrdineModificaPizza>();
+							ordineModificaPizzaList.add(ordineModifica);
+							ordinePizzeEntity1.setOrdineModificaPizzaList(ordineModificaPizzaList);
+							
+						}
+				}
+			}
 		}
+}
+		
+			
+
+		
+		List<OrdinePizzeEntity> ordinePizze1 = ordineEntity.getOrdinePizzeEntity();
+//		for (OrdinePizzeEntity ordinePizzeEntity : ordinePizze1) {
+//			ordinePizzeEntity.setOrdineModificaPizzaList(ordineModifiList);
+//		}
 		
 		return ordineEntity;
 	}
@@ -141,10 +163,27 @@ public class ConvertitoreService {
 	
 	
 	
-	public OrdineModificaPizza convertListIngredientiToListModificaEntity(Ingredient listIngredients) {
+	public OrdineModificaPizza convertIngredientiToModificaEntity(Ingredient listIngredients) {
 		
 		
 			
+		IngredienteEntity ingrediente = this.convertIngredientToIngredientEntity(listIngredients);
+		OrdineModificaPizza ordineModifica = new OrdineModificaPizza();
+		ordineModifica.setId(listIngredients.getId());
+		TipoModificaPizzaEntity tipoModificaPizzaEntity= new TipoModificaPizzaEntity();
+		tipoModificaPizzaEntity.setDescrizione(listIngredients.getTipoModifica());
+		ordineModifica.setIngrediente(ingrediente);
+		ordineModifica.setTipoModificaPizzaEntry(tipoModificaPizzaEntity);
+		
+
+		return ordineModifica;
+	
+	}
+	
+	public OrdineModificaPizza convertIngredientEntityToModificaEntity(Ingredient listIngredients) {
+		
+		
+		
 		IngredienteEntity ingrediente = this.convertIngredientToIngredientEntity(listIngredients);
 		OrdineModificaPizza ordineModifica = new OrdineModificaPizza();
 		ordineModifica.setId(listIngredients.getId());

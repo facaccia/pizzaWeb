@@ -62,4 +62,16 @@ public class CustomerDao {
 		
 	}
 
+
+	public Customer salvaUser(Customer user) {
+		//prendere sessione
+				Session session= getSession();
+			CustomerEntity customer = convertitoreService.convertCustomerToCustomerEntity(user);
+				//salvare/modificare cliente
+				session.saveOrUpdate(customer);
+				user= convertitoreService.convertCustomerEntityToCustomer(customer);
+				
+		return user;
+	}
+
 }

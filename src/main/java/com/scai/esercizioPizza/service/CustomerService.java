@@ -16,6 +16,12 @@ public class CustomerService {
 	public Customer login(String nome, String numero) {
 		return customerDao.login(nome,numero);
 	}
+
+
+	public Customer salvaUser(Customer user) {
+		// TODO Auto-generated method stub
+		return customerDao.salvaUser(user);
+	}
 	
 	
 

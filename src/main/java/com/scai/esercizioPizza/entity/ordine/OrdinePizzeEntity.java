@@ -18,6 +18,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.scai.esercizioPizza.entity.PizzaEntity;
+import com.scai.esercizioPizza.model.Pizza;
 
 @Entity
 @Table(name = "r_ordine_pizze", catalog = "pizzaweb")
@@ -94,4 +95,7 @@ public class OrdinePizzeEntity implements Serializable
 		ordineModificaPizza1.setOrderPizzas(this);
 		
 	}
+	
+
+	
 }

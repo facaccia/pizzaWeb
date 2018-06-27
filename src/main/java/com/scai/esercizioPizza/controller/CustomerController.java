@@ -1,6 +1,7 @@
 package com.scai.esercizioPizza.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,6 +28,17 @@ public class CustomerController {
 		Customer customer= customerService.login(nome, numero);
 		
 		return customer;}
+	
+	@PostMapping("/salvaCliente")
+	public Customer salvaCliente(
+			@RequestBody Customer user) {
+		
+		System.out.println(user);
+		//salvare cliente in db
+				
+		return customerService.salvaUser(user);
+
+	}
 	
 
 }
